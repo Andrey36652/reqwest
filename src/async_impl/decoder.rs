@@ -467,7 +467,11 @@ impl Future for Pending {
             ))))),
             #[cfg(feature = "gzip")]
             DecoderType::Gzip => Poll::Ready(Ok(Inner::Gzip(Box::pin(FramedRead::new(
-                GzipDecoder::new(StreamReader::new(_body)),
+                { 
+                    let mut d = GzipDecoder::new(StreamReader::new(_body));
+                    d.multiple_members(true);
+                    d
+                },
                 BytesCodec::new(),
             ))))),
             #[cfg(feature = "deflate")]
